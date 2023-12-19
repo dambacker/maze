@@ -85,8 +85,6 @@ public:
     void        Discover(Cell* cell);
     void        Solve();
     void        Print();
-    void        PrintColor();
-    void        PrintColor2();
 public:
     Cell        cells[DIMX][DIMY];
 };
@@ -230,27 +228,6 @@ Maze::Maze()
 void Maze::Print()
 //-----------------------------------------------------------------------------
 {
-    printf("\n  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
-    for (int y=DIMY-1; y>=0; y--)
-    {
-        printf("\n%d |", y);
-        for (int x=0; x<DIMX; x++)
-        {
-            if (cells[x][y].distance != MAX_DISTANCE)
-                printf("%4.1f ", cells[x][y].distance);
-            else
-                printf("     ");
-            printf("%c", (!cells[x][y].east) ? '|' : ' ');
-        }
-        printf("\n  +");
-        for (int x=0; x<DIMX; x++)
-            printf("%s%c", (!cells[x][y].south) ? "-----" : "     ", (x==4 && y==5) ? 'o' : '+');
-    }
-    printf("\n     0     1     2     3     4     5     6     7     8     9   \n\n");
-}
-
-void Maze::PrintColor()
-{
 	char black[]     = "\033[22;30m";
 	char red[]       = "\033[22;31m";
 	char l_red[]     = "\033[01;31m";
@@ -267,8 +244,7 @@ void Maze::PrintColor()
 	char gray[]      = "\033[22;37m";
 	char white[]     = "\033[01;37m";
 
-    printf("\033[2J"); //clear screen, move to (0,0)
-    printf("  %s+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+", blue);
+    printf("\033[2J  %s+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+", blue); //clear screen, move to (0,0), print top line in blue
     for (int y=DIMY-1; y>=0; y--)
     {
         printf("\n%s%d %s|", white, y,blue);
@@ -285,60 +261,7 @@ void Maze::PrintColor()
             printf("%s%c", (!cells[x][y].south) ? "-----" : "     ", (x==4 && y==5) ? 'o' : '+');
     }
     printf("\n%s     0     1     2     3     4     5     6     7     8     9   \n\n", white);
-    /*
-    printf("\033[%d;%dH", 11, 33);// or \\033[<L>;<C>f 
-    printf("%so%s", red, white);
-    printf("\033[%d;%dH", 25, 0);// or \\033[<L>;<C>f 
-    */
     printf("\033[%d;%dH%so%s\033[%d;%dH", 11, 33, red, white, 24, 0);
-}
-
-void Maze::PrintColor2()
-{
-	char black[]     = "\033[22;30m";
-	char red[]       = "\033[22;31m";
-	char l_red[]     = "\033[01;31m";
-	char green[]     = "\033[22;32m";
-	char l_green[]   = "\033[01;32m";
-	char orange[]    = "\033[22;33m";
-	char yellow[]    = "\033[01;33m";
-	char blue[]      = "\033[22;34m";
-	char l_blue[]    = "\033[01;34m";
-	char magenta[]   = "\033[22;35m";
-	char l_magenta[] = "\033[01;35m";
-	char cyan[]      = "\033[22;36m";
-	char l_cyan[]    = "\033[01;36m";
-	char gray[]      = "\033[22;37m";
-	char white[]     = "\033[01;37m";
-
-    printf("\033[2J"); //clear screen, move to (0,0)
-    for (int y=0; y<DIMY; y++)
-        for (int x=0; x<DIMX; x++)
-        {
-            printf("\033[%d;%dH+", y*2, x*6+2);// or \\033[<L>;<C>f 
-        }
-/*        
-    printf("\n  %s+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+", blue);
-    for (int y=DIMY-1; y>=0; y--)
-    {
-        printf("\n%s%d %s|", white, y,blue);
-        for (int x=0; x<DIMX; x++)
-        {
-            if (cells[x][y].distance != MAX_DISTANCE)
-                printf("%s%4.1f %s", green, cells[x][y].distance, blue);
-            else
-                printf("     ");
-            printf("%c", (!cells[x][y].east) ? '|' : ' ');
-        }
-        printf("\n  +");
-        for (int x=0; x<DIMX; x++)
-            printf("%s%c", (!cells[x][y].south) ? "-----" : "     ", (x==4 && y==5) ? 'o' : '+');
-    }
-    printf("\n%s     0     1     2     3     4     5     6     7     8     9   \n\n", white);
-    printf("\033[%d;%dH", 12, 33);// or \\033[<L>;<C>f 
-    printf("%so%s", red, white);
-    printf("\033[%d;%dH", 25, 0);// or \\033[<L>;<C>f 
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -378,8 +301,8 @@ void Maze::Solve()
     {
         Cell* cell = queue.Pop();
 
-        float d;
-        for (Cell* c=cell; c!=NULL && (c->west || c->east) && ((d=cell->distance + Distance(cell, c)) < c->distance); c = c->north) {c->distance = d; queue.Push(c);}
+//        float d;
+//        for (Cell* c=cell; c!=NULL && (c->west || c->east) && ((d=cell->distance + Distance(cell, c)) < c->distance); c = c->north) {c->distance = d; queue.Push(c);}
 
         for (Cell* c = cell; c != NULL; c = c->north) if ((c->west  || c->east)  && (cell->distance + Distance(cell, c) < c->distance)) { c->distance = cell->distance + Distance(cell, c); queue.Push(c);}
         for (Cell* c = cell; c != NULL; c = c->east)  if ((c->north || c->south) && (cell->distance + Distance(cell, c) < c->distance)) { c->distance = cell->distance + Distance(cell, c); queue.Push(c);}
@@ -396,7 +319,7 @@ int main()
 
     maze.Discover(&maze.cells[0][0]);
     maze.Solve();
-    maze.PrintColor();
+    maze.Print();
 
     return 0;
 }
